@@ -1,3 +1,8 @@
+
+# Set the matplotlib backend first (MUST come before other matplotlib imports)
+import matplotlib
+matplotlib.use('Agg')  # Non-interactive backend
+
 import matplotlib.pyplot as plt
 import numpy as np
 import arabic_reshaper
@@ -10,40 +15,60 @@ from typing import Dict, List, Any
 plt.rcParams['font.family'] = 'Arial'
 plt.rcParams['axes.unicode_minus'] = False
 
+
 def create_journal_entries_chart(journal_entries: Dict, language: str = "english") -> str:
     """
     Create visualization of journal entries
     Args:
-        journal_entries: {
-            "journal_entries": [
-                {"account": str, "debit": float, "credit": float},
-                ...
-            ]
-        }
+        journal_entries: Either:
+            {
+                "journal_entries": [
+                    {"account": str, "debit": float, "credit": float},
+                    ...
+                ]
+            }
+            OR
+            {
+                "chart_data": {
+                    "accounts": List[str],
+                    "debits": List[float],
+                    "credits": List[float]
+                }
+            }
         language: "english" or "arabic"
     Returns:
         Base64 encoded PNG image
     """
     try:
-        entries = journal_entries["journal_entries"]
-        accounts = [entry["account"] for entry in entries]
-        debits = [entry["debit"] for entry in entries]
-        credits = [entry["credit"] for entry in entries]
+        # Handle both possible input formats
+        if "journal_entries" in journal_entries:
+            entries = journal_entries["journal_entries"]
+            accounts = [entry["account"] for entry in entries]
+            debits = [entry["debit"] for entry in entries]
+            credits = [entry["credit"] for entry in entries]
+        elif "chart_data" in journal_entries:
+            chart_data = journal_entries["chart_data"]
+            accounts = chart_data["accounts"]
+            debits = chart_data["debits"]
+            credits = chart_data["credits"]
+        else:
+            raise ValueError("Invalid journal entries format")
         
+        # Check if we have any data to visualize
+        if not accounts or not debits or not credits:
+            raise ValueError("No data available for visualization")
+            
         # Handle Arabic text
         if language.lower() == "arabic":
             accounts = [get_display(arabic_reshaper.reshape(account)) for account in accounts]
         
-        # Create figure
+        # Rest of the function remains the same...
         fig, ax = plt.subplots(figsize=(12, 6))
-        
-        # Set up chart
         x = np.arange(len(accounts))
         width = 0.35
         
-        # Create bars with distinct colors
-        debit_color = '#1f77b4'  # Blue
-        credit_color = '#ff7f0e'  # Orange
+        debit_color = '#1f77b4'
+        credit_color = '#ff7f0e'
         
         debit_bars = ax.bar(x - width/2, debits, width, label='Debit', color=debit_color)
         credit_bars = ax.bar(x + width/2, credits, width, label='Credit', color=credit_color)
@@ -62,10 +87,8 @@ def create_journal_entries_chart(journal_entries: Dict, language: str = "english
         ax.set_xticklabels(accounts, rotation=45, ha='right')
         ax.legend()
         
-        # Format y-axis as currency
         ax.yaxis.set_major_formatter('{x:,.0f}')
         
-        # Add value labels
         for bars in [debit_bars, credit_bars]:
             for bar in bars:
                 height = bar.get_height()
@@ -79,7 +102,6 @@ def create_journal_entries_chart(journal_entries: Dict, language: str = "english
         
         plt.tight_layout()
         
-        # Save to buffer
         buffer = BytesIO()
         fig.savefig(buffer, format='png', dpi=120, bbox_inches='tight')
         plt.close(fig)
