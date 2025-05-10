@@ -2,9 +2,9 @@ flask==2.3.3
 flask-cors==4.0.0
 gunicorn==21.2.0
 openai==1.3.0
-numpy==1.24.3
+numpy
 matplotlib==3.7.2
 python-dotenv==1.0.0
 arabic-reshaper==3.0.0
 python-bidi==0.4.2
-flsk_caching==0.10.0
+flask_caching==0.10.0
