@@ -2,7 +2,7 @@ import os
 import json
 import re
 from typing import Dict, List, Any, Optional
-from openai import OpenAI
+#from openai import OpenAI
 
 class IslamicFinanceAI:
     def __init__(self, api_key: str = None):
