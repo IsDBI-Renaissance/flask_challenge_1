@@ -7,4 +7,4 @@ matplotlib==3.7.2
 python-dotenv==1.0.0
 arabic-reshaper==3.0.0
 python-bidi==0.4.2
-flsk_casihng==0.1.0
+flsk_caching==0.1.0
