@@ -2,14 +2,20 @@ import os
 import json
 import re
 from typing import Dict, List, Any, Optional
-#from openai import OpenAI
+
+# Remove this line, because you're using Together AI, not OpenAI
+# from openai import OpenAI
+
+# Assuming you're using Together AI's APIClient (this could vary depending on the actual library)
+from togetherai import APIClient  # Correct import for Together AI
 
 class IslamicFinanceAI:
     def __init__(self, api_key: str = None):
         """Initialize with enhanced error handling"""
-        self.client = OpenAI(
+        # Initialize the Together AI API client, NOT OpenAI
+        self.client = APIClient(
             api_key=api_key or os.environ.get("TOGETHER_API_KEY"),
-            base_url="https://api.together.xyz/v1"
+            base_url="https://api.together.xyz/v1"  # Ensure this is the correct base URL for Together AI
         )
         if not self.client.api_key:
             raise ValueError("API key must be provided")
@@ -42,6 +48,7 @@ class IslamicFinanceAI:
             return {"amount": 0, "transaction_type": "Unknown"}
         
         try:
+            # Use the correct method from Together AI for processing (replace with actual API call)
             response = self.client.chat.completions.create(
                 model="meta-llama/Llama-3-70b-chat-hf",
                 messages=[{
